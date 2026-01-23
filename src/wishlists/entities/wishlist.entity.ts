@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Length, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Wishlist {
@@ -11,6 +11,7 @@ export class Wishlist {
   @Column()
   name: string;
   @Column()
+  @Length(1500)
   description: string;
   @Column()
   image: string;

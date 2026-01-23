@@ -1,17 +1,18 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Max, Min } from 'class-validator';
+import { IsDate, Length} from 'class-validator';
 
 @Entity()
 export class Wish {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
+  @IsDate()
   createdAt: Date;
   @Column()
+  @IsDate()
   updatedAt: Date;
   @Column()
-  @Min(1)
-  @Max(250)
+  @Length(1, 250)
   name: string;
   @Column()
   link: string;
@@ -22,7 +23,8 @@ export class Wish {
   @Column()
   raised: number;
   @Column()
+  @Length(1, 1024)
   description: string;
   @Column()
-  copied: string;
+  copied: number;
 }

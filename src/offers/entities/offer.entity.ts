@@ -10,6 +10,6 @@ export class Offer {
   updatedAt: Date;
   @Column()
   amount: number;
-  @Column()
+  @Column({default: false})
   hidden: boolean;
 }

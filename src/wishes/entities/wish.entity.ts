@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { IsDate, Length} from 'class-validator';
+import { User } from '../entities/users/entities/user.entity';
 
 @Entity()
 export class Wish {
@@ -27,4 +28,6 @@ export class Wish {
   description: string;
   @Column()
   copied: number;
+  @ManyToOne(() => User, (user) => user.wishes)
+  user: User;
 }

@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import {
   Length,
   IsEmail,
   IsDate
 } from '@nestjs/class-validator';
+import { Wish } from './wishes/entities/wish.entity';
 
 @Entity()
 export class User {
@@ -28,4 +29,6 @@ export class User {
   email: string;
   @Column()
   password: string;
+  @OneToMany(() => Wish, (wish) => wish.user)
+  wishes: Wish[];
 }

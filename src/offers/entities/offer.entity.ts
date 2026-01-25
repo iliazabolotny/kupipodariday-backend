@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { User } from '../entities/users/entities/user.entity';
 
 @Entity()
 export class Offer {
@@ -12,4 +13,6 @@ export class Offer {
   amount: number;
   @Column({default: false})
   hidden: boolean;
+  @ManyToOne(() => User, (user) => user.offers)
+  user: User;
 }

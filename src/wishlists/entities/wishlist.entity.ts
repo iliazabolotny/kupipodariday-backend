@@ -1,4 +1,5 @@
-import { Column, Entity, Length, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Length, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { User } from '../entities/users/entities/user.entity';
 
 @Entity()
 export class Wishlist {
@@ -15,4 +16,6 @@ export class Wishlist {
   description: string;
   @Column()
   image: string;
+  @ManyToOne(() => User, (user) => user.wishlists)
+  user: User;
 }

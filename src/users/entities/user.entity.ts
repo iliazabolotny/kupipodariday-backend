@@ -4,7 +4,9 @@ import {
   IsEmail,
   IsDate
 } from '@nestjs/class-validator';
-import { Wish } from './wishes/entities/wish.entity';
+import { Wish } from '../wishes/entities/wish.entity';
+import { Offer } from '../offers/entities/offer.entity';
+import { Wishlist } from '../wishlists/entities/wishlist.entity'
 
 @Entity()
 export class User {
@@ -31,4 +33,8 @@ export class User {
   password: string;
   @OneToMany(() => Wish, (wish) => wish.user)
   wishes: Wish[];
+  @OneToMany(() => Offer, (offer) => offer.user)
+  offers: Offer[];
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
+  wishlists: Wishlist[]
 }

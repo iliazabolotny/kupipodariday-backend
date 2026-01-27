@@ -1,5 +1,6 @@
-import { Column, Entity, Length, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Length, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../entities/users/entities/user.entity';
+import { Wish } from '../entities/wishes/wish.entity';
 
 @Entity()
 export class Wishlist {
@@ -18,4 +19,6 @@ export class Wishlist {
   image: string;
   @ManyToOne(() => User, (user) => user.wishlists)
   user: User;
+  @OneToMany(() => Wish, (wish) => wish.wishlist)
+  items: Wish[];
 }

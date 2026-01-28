@@ -1,6 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToOne } from 'typeorm';
-import { User } from '../entities/users/entities/user.entity';
-import { Wish } from '../entities/users/entities/wish.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToOne,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Wish } from '../../wishes/entities/wish.entity';
 
 @Entity()
 export class Offer {
@@ -12,7 +18,7 @@ export class Offer {
   updatedAt: Date;
   @Column()
   amount: number;
-  @Column({default: false})
+  @Column({ default: false })
   hidden: boolean;
   @ManyToOne(() => User, (user) => user.offers)
   user: User;

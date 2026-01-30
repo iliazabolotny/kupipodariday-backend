@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
@@ -23,5 +24,6 @@ export class Offer {
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
   @OneToOne(() => Wish, (wish) => wish.offer)
+  @JoinColumn()
   item: Wish;
 }

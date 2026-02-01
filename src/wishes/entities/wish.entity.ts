@@ -3,7 +3,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { IsDate, Length } from 'class-validator';
 import { User } from '../../users/entities/user.entity';
@@ -37,9 +37,9 @@ export class Wish {
   @Column()
   copied: number;
   @ManyToOne(() => User, (user) => user.wishes)
-  user: User;
-  @OneToOne(() => Offer, (offer) => offer.item)
-  offer: Offer;
+  owner: User;
+  @OneToMany(() => Offer, (offer) => offer.item)
+  offers: Offer;
   @ManyToOne(() => Wishlist, (wishlist) => wishlist.items)
   wishlist: Wishlist;
 }

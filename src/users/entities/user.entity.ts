@@ -27,7 +27,7 @@ export class User {
   email: string;
   @Column()
   password: string;
-  @OneToMany(() => Wish, (wish) => wish.user)
+  @OneToMany(() => Wish, (wish) => wish.owner)
   wishes: Wish[];
   @OneToMany(() => Offer, (offer) => offer.user)
   offers: Offer[];

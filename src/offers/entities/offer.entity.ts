@@ -23,7 +23,6 @@ export class Offer {
   hidden: boolean;
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
-  @OneToOne(() => Wish, (wish) => wish.offer)
-  @JoinColumn()
+  @ManyToOne(() => Wish, (wish) => wish.offers)
   item: Wish;
 }

@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
+import { IsNumber } from 'class-validator';
 
 @Entity()
 export class Offer {
@@ -11,6 +12,7 @@ export class Offer {
   @Column()
   updatedAt: Date;
   @Column()
+  @IsNumber({ maxDecimalPlaces: 2 })
   amount: number;
   @Column({ default: false })
   hidden: boolean;

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository, Repository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -7,7 +8,7 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UsersService {
   constructor(
-      @InjectRepository(User)
+    @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
@@ -24,7 +25,7 @@ export class UsersService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update({ id }, updateUserDto);;
+    return this.userRepository.update({ id }, updateUserDto);
   }
 
   remove(id: number) {

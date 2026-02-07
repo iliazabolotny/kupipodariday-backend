@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Length, IsEmail, IsDate } from 'class-validator';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { Length, IsEmail } from 'class-validator';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
@@ -7,14 +7,6 @@ import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @Column()
-  @IsDate()
-  createdAt: Date;
-  @Column()
-  @IsDate()
-  updatedAt: Date;
   @Column()
   @Length(2, 30)
   username: string;

@@ -21,7 +21,7 @@ export class WishesService {
   }
 
   findOne(id: number) {
-    return this.wishRepository.delete({ id });
+    return this.wishRepository.findOneBy({ id });
   }
 
   update(id: number, updateWishDto: UpdateWishDto) {

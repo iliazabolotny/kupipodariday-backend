@@ -21,7 +21,7 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return this.userRepository.delete({ id });
+    return this.userRepository.findOneBy({ id });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

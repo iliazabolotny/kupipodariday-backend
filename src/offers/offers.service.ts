@@ -21,7 +21,7 @@ export class OffersService {
   }
 
   findOne(id: number) {
-    return this.offerRepository.delete({ id });
+    return this.offerRepository.findOneBy({ id });
   }
 
   update(id: number, updateOfferDto: UpdateOfferDto) {

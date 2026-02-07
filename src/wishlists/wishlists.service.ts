@@ -21,7 +21,7 @@ export class WishlistsService {
   }
 
   findOne(id: number) {
-    return this.wishlistRepository.delete({ id });
+    return this.wishlistRepository.findOneBy({ id });
   }
 
   update(id: number, updateWishlistDto: UpdateWishlistDto) {

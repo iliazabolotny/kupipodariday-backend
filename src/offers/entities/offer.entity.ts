@@ -1,16 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { IsNumber } from 'class-validator';
+import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class Offer {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @Column()
-  createdAt: Date;
-  @Column()
-  updatedAt: Date;
+export class Offer extends BaseEntity {
   @Column()
   @IsNumber({ maxDecimalPlaces: 2 })
   amount: number;

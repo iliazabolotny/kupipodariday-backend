@@ -31,4 +31,10 @@ export class UsersService {
   remove(id: number) {
     return this.userRepository.delete({ id });
   }
+
+  findByUsername(username: string) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return this.userRepository.findOne({ username });
+  }
 }

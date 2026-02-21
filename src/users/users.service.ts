@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,13 +14,21 @@ export class UsersService {
   ) {}
 
   create(createUserDto: CreateUserDto): Promise<User> {
-    return bcrypt.hash(createUserDto.password, 10).then((hash) => {
-      const result = {
-        ...createUserDto,
-        password: hash,
-      };
-      return this.userRepository.save(result);
-    });
+    const currentUsername = this.findByUsername(createUserDto.username);
+    const email = this.findByEmail(createUserDto.email);
+    if (!currentUsername && !email) {
+      return bcrypt.hash(createUserDto.password, 10).then((hash) => {
+        const result = {
+          ...createUserDto,
+          password: hash,
+        };
+        return this.userRepository.save(result);
+      });
+    } else {
+      throw new ConflictException(
+        'Пользователь с таким email или username уже существует',
+      );
+    }
   }
 
   findAll() {
@@ -40,8 +48,10 @@ export class UsersService {
   }
 
   findByUsername(username: string) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return this.userRepository.findOne({ username });
+    return this.userRepository.findOne({ where: { username } });
+  }
+
+  findByEmail(email: string) {
+    return this.userRepository.findOne({ where: { email } });
   }
 }

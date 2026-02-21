@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { WishesModule } from './wishes/wishes.module';
@@ -27,8 +27,8 @@ import { AuthModule as JwtModule } from './jwt/jwt.module';
     WishesModule,
     WishlistsModule,
     OffersModule,
-    AuthModule,
-    JwtModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => JwtModule),
   ],
 })
 export class AppModule {}

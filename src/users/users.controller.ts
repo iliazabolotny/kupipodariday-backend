@@ -9,11 +9,13 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from '../guards/jwt.guard';
 import bcrypt from 'bcryptjs';
+import { FindUserDto } from './dto/find-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -82,5 +84,22 @@ export class UsersController {
       return NotFoundException;
     }
     return user.wishes;
+  }
+
+  @Post('find')
+  @HttpCode(201)
+  async findUser(@Body() findUserDto: FindUserDto) {
+    const searchingUser = findUserDto.query;
+    const usersByUsername = await this.usersService.searchByUsername(
+      searchingUser,
+    );
+    const usersByEmail = await this.usersService.searchByEmail(searchingUser);
+    if (usersByUsername.length > 0 && usersByEmail.length === 0) {
+      return usersByUsername;
+    }
+    if (usersByEmail.length > 0 && usersByUsername.length === 0) {
+      return usersByEmail;
+    }
+    return [];
   }
 }

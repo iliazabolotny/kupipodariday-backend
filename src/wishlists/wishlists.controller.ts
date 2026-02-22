@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JwtGuard } from '../guards/jwt.guard';
 
 @Controller('wishlists')
 export class WishlistsController {
@@ -30,16 +33,27 @@ export class WishlistsController {
     return this.wishlistsService.findOne(+id);
   }
 
+  @UseGuards(JwtGuard)
   @Patch(':id')
   update(
+    @Req() req,
     @Param('id') id: string,
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    return this.wishlistsService.update(+id, updateWishlistDto);
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.find((wish) => wish.id === id)) {
+      return this.wishlistsService.update(+id, updateWishlistDto);
+    }
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishlistsService.remove(+id);
+  remove(@Req() req, @Param('id') id: string) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.find((wish) => wish.id === id)) {
+      return this.wishlistsService.remove(+id);
+    }
   }
 }

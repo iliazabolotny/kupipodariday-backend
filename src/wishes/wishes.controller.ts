@@ -6,37 +6,81 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
+import { JwtGuard } from '../guards/jwt.guard';
 
 @Controller('wishes')
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
   @Post()
+  @UseGuards(JwtGuard)
   create(@Body() createWishDto: CreateWishDto) {
     return this.wishesService.create(createWishDto);
   }
 
-  @Get()
-  findAll() {
-    return this.wishesService.findAll();
+  @Post(':id/copy')
+  @UseGuards(JwtGuard)
+  copyWish(@Param(':id') id: string, @Req() req) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    const targetWish = loggedUserWishes.find((wish) => wish.id === id);
+    if (targetWish) {
+      return this.wishesService.create(targetWish);
+    }
+  }
+
+  @Get('top')
+  @UseGuards(JwtGuard)
+  findTop(@Req() req) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.length > 0) {
+      return loggedUserWishes[0];
+    }
+  }
+
+  @Get('last')
+  @UseGuards(JwtGuard)
+  findLast(@Req() req) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.length > 0) {
+      return loggedUserWishes[loggedUserWishes.length - 1];
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  getWishById(@Param(':id') id: string) {
     return this.wishesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishesService.update(+id, updateWishDto);
+  @UseGuards(JwtGuard)
+  update(
+    @Req() req,
+    @Param('id') id: string,
+    @Body() updateWishDto: UpdateWishDto,
+  ) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.find((wish) => wish.id === id)) {
+      return this.wishesService.update(+id, updateWishDto);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishesService.remove(+id);
+  @UseGuards(JwtGuard)
+  remove(@Req() req, @Param('id') id: string) {
+    const loggedUser = req.user;
+    const loggedUserWishes = loggedUser.wishes;
+    if (loggedUserWishes.find((wish) => wish.id === id)) {
+      return this.wishesService.remove(+id);
+    }
   }
 }

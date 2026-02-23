@@ -18,16 +18,19 @@ import { JwtGuard } from '../guards/jwt.guard';
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
   create(@Body() createWishlistDto: CreateWishlistDto) {
     return this.wishlistsService.create(createWishlistDto);
   }
 
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
     return this.wishlistsService.findAll();
   }
 
+  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.wishlistsService.findOne(+id);

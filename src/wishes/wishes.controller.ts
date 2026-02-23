@@ -31,7 +31,11 @@ export class WishesController {
     const loggedUserWishes = loggedUser.wishes;
     const targetWish = loggedUserWishes.find((wish) => wish.id === id);
     if (targetWish) {
-      return this.wishesService.create(targetWish);
+      const result = {
+        ...targetWish,
+        copied: targetWish.copied + 1,
+      };
+      return this.wishesService.create(result);
     }
   }
 

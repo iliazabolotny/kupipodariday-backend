@@ -29,7 +29,11 @@ export class Wish extends BaseEntity {
   copied: number;
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
-  @OneToMany(() => Offer, (offer) => offer.item)
+  @OneToMany(() => Offer, (offer) => offer.item, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   offers: Offer;
   @ManyToOne(() => Wishlist, (wishlist) => wishlist.items)
   wishlist: Wishlist;

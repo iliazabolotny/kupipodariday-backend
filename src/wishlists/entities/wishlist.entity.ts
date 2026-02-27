@@ -15,6 +15,10 @@ export class Wishlist extends BaseEntity {
   image: string;
   @ManyToOne(() => User, (user) => user.wishlists)
   user: User;
-  @OneToMany(() => Wish, (wish) => wish.wishlist)
+  @OneToMany(() => Wish, (wish) => wish.wishlist, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   items: Wish[];
 }

@@ -15,28 +15,25 @@ import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { JwtGuard } from '../guards/jwt.guard';
 
 @Controller('wishlists')
+@UseGuards(JwtGuard)
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @UseGuards(JwtGuard)
   @Post()
   create(@Body() createWishlistDto: CreateWishlistDto) {
     return this.wishlistsService.create(createWishlistDto);
   }
 
-  @UseGuards(JwtGuard)
   @Get()
   findAll() {
     return this.wishlistsService.findAll();
   }
 
-  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.wishlistsService.findOne(+id);
   }
 
-  @UseGuards(JwtGuard)
   @Patch(':id')
   update(
     @Req() req,
@@ -50,7 +47,6 @@ export class WishlistsController {
     }
   }
 
-  @UseGuards(JwtGuard)
   @Delete(':id')
   remove(@Req() req, @Param('id') id: string) {
     const loggedUser = req.user;

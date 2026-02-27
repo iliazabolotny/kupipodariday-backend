@@ -13,6 +13,7 @@ import { JwtGuard } from '../guards/jwt.guard';
 import { WishesService } from '../wishes/wishes.service';
 
 @Controller('offers')
+@UseGuards(JwtGuard)
 export class OffersController {
   constructor(
     private readonly offersService: OffersService,
@@ -20,7 +21,6 @@ export class OffersController {
   ) {}
 
   @Post()
-  @UseGuards(JwtGuard)
   async create(@Req() req, @Body() createOfferDto: CreateOfferDto) {
     const loggedUser = req.user;
     const loggedUserWishes = loggedUser.wishes;

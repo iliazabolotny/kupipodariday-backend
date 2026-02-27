@@ -40,7 +40,6 @@ export class WishesController {
   }
 
   @Get('top')
-  @UseGuards(JwtGuard)
   findTop(@Req() req) {
     const loggedUser = req.user;
     const loggedUserWishes = loggedUser.wishes;
@@ -60,6 +59,7 @@ export class WishesController {
   }
 
   @Get(':id')
+  @UseGuards(JwtGuard)
   getWishById(@Param(':id') id: string) {
     return this.wishesService.findOne(+id);
   }

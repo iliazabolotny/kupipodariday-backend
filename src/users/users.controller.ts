@@ -18,6 +18,7 @@ import bcrypt from 'bcryptjs';
 import { FindUserDto } from './dto/find-user.dto';
 
 @Controller('users')
+@UseGuards(JwtGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Delete(':id')
@@ -25,7 +26,6 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
-  @UseGuards(JwtGuard)
   @Get('me')
   getMe(@Req() req) {
     const user = req.user;
@@ -40,7 +40,6 @@ export class UsersController {
     };
   }
 
-  @UseGuards(JwtGuard)
   @Patch('me')
   patchMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user;
@@ -53,7 +52,6 @@ export class UsersController {
     });
   }
 
-  @UseGuards(JwtGuard)
   @Get('me/wishes')
   getProfileWishes(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user;

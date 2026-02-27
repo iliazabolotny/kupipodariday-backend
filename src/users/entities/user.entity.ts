@@ -15,7 +15,7 @@ export class User extends BaseEntity {
   about: string;
   @Column({ default: 'https://i.pravatar.cc/300' })
   avatar: string;
-  @Column()
+  @Column({ unique: true, select: false })
   @IsEmail()
   email: string;
   @Column()

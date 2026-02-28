@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -19,6 +21,7 @@ export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtGuard)
   create(@Body() createWishDto: CreateWishDto) {
     return this.wishesService.create(createWishDto);

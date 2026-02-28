@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  HttpStatus,
   HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -22,12 +23,12 @@ import { FindUserDto } from './dto/find-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 
   @Get('me')
-  getMe(@Req() req) {
+  async getMe(@Req() req) {
     const user = req.user;
     return {
       id: user.id,
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  patchMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  async patchMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user;
     return bcrypt.hash(updateUserDto?.password, 10).then((hash) => {
       const result = {
@@ -53,7 +54,7 @@ export class UsersController {
   }
 
   @Get('me/wishes')
-  getProfileWishes(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  async getProfileWishes(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user;
     return user.wishes;
   }
@@ -85,7 +86,7 @@ export class UsersController {
   }
 
   @Post('find')
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   async findUser(@Body() findUserDto: FindUserDto) {
     const searchingUser = findUserDto.query;
     const usersByUsername = await this.usersService.searchByUsername(

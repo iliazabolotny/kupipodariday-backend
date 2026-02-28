@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -56,10 +56,12 @@ export class UsersService {
   }
 
   searchByUsername(username: string) {
-    return this.userRepository.find({ where: { username } });
+    return this.userRepository.find({
+      where: { username: ILike(`%${username}%`) },
+    });
   }
 
   searchByEmail(email: string) {
-    return this.userRepository.find({ where: { email } });
+    return this.userRepository.find({ where: { email: ILike(`%${email}%`) } });
   }
 }

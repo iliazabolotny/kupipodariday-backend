@@ -13,55 +13,53 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto): Promise<User> {
-    const currentUsername = this.findByUsername(createUserDto.username);
-    const email = this.findByEmail(createUserDto.email);
-    if (!currentUsername && !email) {
-      return bcrypt.hash(createUserDto.password, 10).then((hash) => {
-        const result = {
-          ...createUserDto,
-          password: hash,
-        };
-        return this.userRepository.save(result);
-      });
-    } else {
-      throw new ConflictException(
-        'Пользователь с таким email или username уже существует',
-      );
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      const hash = await bcrypt.hash(createUserDto.password, 10);
+      const result = {
+        ...createUserDto,
+        password: hash,
+      };
+      const user = await this.userRepository.create(result);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException(
+          'Пользователь с таким email или username уже существует',
+        );
+      }
     }
   }
 
-  findAll() {
-    return this.userRepository.find();
+  async findOne(id: number) {
+    return await this.userRepository.findOneBy({ id });
   }
 
-  findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update({ id }, updateUserDto);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update({ id }, updateUserDto);
+  async remove(id: number) {
+    return await this.userRepository.delete({ id });
   }
 
-  remove(id: number) {
-    return this.userRepository.delete({ id });
+  async findByUsername(username: string) {
+    return await this.userRepository.findOne({ where: { username } });
   }
 
-  findByUsername(username: string) {
-    return this.userRepository.findOne({ where: { username } });
+  async findByEmail(email: string) {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
-  findByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
-  }
-
-  searchByUsername(username: string) {
-    return this.userRepository.find({
+  async searchByUsername(username: string) {
+    return await this.userRepository.find({
       where: { username: ILike(`%${username}%`) },
     });
   }
 
-  searchByEmail(email: string) {
-    return this.userRepository.find({ where: { email: ILike(`%${email}%`) } });
+  async searchByEmail(email: string) {
+    return await this.userRepository.find({
+      where: { email: ILike(`%${email}%`) },
+    });
   }
 }

@@ -11,21 +11,18 @@ export class AuthService {
     private usersService: UsersService,
   ) {}
 
-  auth(user: User) {
-    const payload = { sub: user.id };
+  async auth(user: User) {
+    const payload = { sub: user?.id };
 
     return { access_token: this.jwtService.sign(payload) };
   }
 
   async validatePassword(username: string, password: string) {
     const user = await this.usersService.findByUsername(username);
-
-    return bcrypt.compare(password, user.password).then((matched) => {
-      if (!matched) {
-        return null;
-      }
-      const { password, ...result } = user;
-      return result;
-    });
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+      return null;
+    }
+    return user;
   }
 }

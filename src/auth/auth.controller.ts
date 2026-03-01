@@ -19,10 +19,6 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  /**
-   * Стратегия local автоматически достанет username и password из тела запроса
-   * Если пароль будет верным, данные пользователя окажутся в объекте req.user
-   */
   @UseGuards(LocalGuard)
   @Post('signin')
   @HttpCode(HttpStatus.CREATED)
@@ -34,9 +30,7 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signup(@Body() createUserDto: CreateUserDto) {
-    /* При регистрации создаём пользователя и генерируем для него токен */
-    const user = await this.usersService.create(createUserDto);
-
-    return this.authService.auth(user);
+    const user = await this.usersService.createUser(createUserDto);
+    return await this.authService.auth(user);
   }
 }

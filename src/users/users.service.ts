@@ -1,10 +1,10 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import bcrypt from 'bcryptjs';
+import { ILike, Repository } from 'typeorm';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -20,14 +20,16 @@ export class UsersService {
         ...createUserDto,
         password: hash,
       };
-      const user = await this.userRepository.create(result);
-      return await this.userRepository.save(user);
-    } catch (error) {
-      if (error.code === '23505') {
+      const user = this.userRepository.create(result);
+      return this.userRepository.save(user);
+    } catch (error: unknown) {
+      const errorCode = error as { code: string };
+      if (errorCode.code === '23505') {
         throw new ConflictException(
           'Пользователь с таким email или username уже существует',
         );
       }
+      throw error;
     }
   }
 

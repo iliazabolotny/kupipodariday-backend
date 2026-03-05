@@ -5,17 +5,12 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
-  UseGuards,
-  Req,
-  NotFoundException,
-  HttpStatus,
-  HttpCode,
+  Delete, UseGuards, Req, NotFoundException, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from '../guards/jwt.guard';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { FindUserDto } from './dto/find-user.dto';
 
 @Controller('users')

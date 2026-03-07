@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { Length, IsUrl, IsNumber } from 'class-validator';
+import { Length, IsUrl, IsNumber, IsInt } from 'class-validator';
 import { User } from '../../users/entities/user.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
@@ -19,13 +19,14 @@ export class Wish extends BaseEntity {
   @Column()
   @IsNumber({ maxDecimalPlaces: 2 })
   price: number;
-  @Column()
+  @Column({ default: 0 })
   @IsNumber({ maxDecimalPlaces: 2 })
   raised: number;
   @Column()
   @Length(1, 1024)
   description: string;
-  @Column()
+  @Column({ default: 0 })
+  @IsInt()
   copied: number;
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;

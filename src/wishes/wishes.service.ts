@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -13,15 +13,24 @@ export class WishesService {
   ) {}
 
   create(createWishDto: CreateWishDto): Promise<Wish> {
-    return this.wishRepository.save(createWishDto);
+    const createdWish = this.wishRepository.create(createWishDto);
+    return this.wishRepository.save(createdWish);
   }
 
   findAll() {
     return this.wishRepository.find();
   }
 
-  findOne(id: number) {
-    return this.wishRepository.findOneBy({ id });
+  async findOne(id: number): Promise<Wish> {
+    const wish = await this.wishRepository.findOne({
+      where: { id },
+    });
+
+    if (!wish) {
+      throw new NotFoundException(`Wish with ID ${id} not found`);
+    }
+
+    return wish;
   }
 
   update(id: number, updateWishDto: UpdateWishDto) {

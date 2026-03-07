@@ -9,7 +9,7 @@ import {
   UseGuards,
   Req,
   HttpCode,
-  HttpStatus,
+  HttpStatus, BadRequestException,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -23,8 +23,8 @@ export class WishesController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtGuard)
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishesService.create(createWishDto);
+  async create(@Body() createWishDto: CreateWishDto) {
+    await this.wishesService.create(createWishDto);
   }
 
   @Post(':id/copy')
@@ -63,8 +63,14 @@ export class WishesController {
 
   @Get(':id')
   @UseGuards(JwtGuard)
-  getWishById(@Param(':id') id: string) {
-    return this.wishesService.findOne(+id);
+  async getWishById(@Param('id') id: string) {
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Invalid ID format. ID must be a positive integer.');
+    }
+
+    return await this.wishesService.findOne(numericId);
   }
 
   @Patch(':id')

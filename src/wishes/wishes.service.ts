@@ -32,7 +32,7 @@ export class WishesService {
     });
 
     if (!wish) {
-      throw new NotFoundException(`Wish with ID ${id} not found`);
+      throw new NotFoundException(`Пользователь не найден`);
     }
 
     return wish;

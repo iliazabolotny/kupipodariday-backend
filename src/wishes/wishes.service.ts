@@ -4,21 +4,26 @@ import { Repository } from 'typeorm';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { Wish } from './entities/wish.entity';
 import { UpdateWishDto } from './dto/update-wish.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class WishesService {
   constructor(
     @InjectRepository(Wish)
-    private readonly wishRepository: Repository<Wish>,
+    private wishRepository: Repository<Wish>
   ) {}
 
-  create(createWishDto: CreateWishDto): Promise<Wish> {
-    const createdWish = this.wishRepository.create(createWishDto);
+  async create(createWishDto: CreateWishDto, user?: any): Promise<Wish> {
+    const createdWish = this.wishRepository.create({ ...createWishDto, owner: user});
     return this.wishRepository.save(createdWish);
   }
 
   findAll() {
     return this.wishRepository.find();
+  }
+
+  async findWishesByUser(user: User) {
+    return await this.wishRepository.find({where: { owner: user}});
   }
 
   async findOne(id: number): Promise<Wish> {

@@ -18,47 +18,43 @@ import { JwtGuard } from '../guards/jwt.guard';
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) {}
+  constructor(private wishesService: WishesService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtGuard)
-  async create(@Body() createWishDto: CreateWishDto) {
-    await this.wishesService.create(createWishDto);
+  async create(@Req() req, @Body() createWishDto: CreateWishDto) {
+    await this.wishesService.create(createWishDto, req.user);
   }
 
   @Post(':id/copy')
   @UseGuards(JwtGuard)
-  copyWish(@Param(':id') id: string, @Req() req) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    const targetWish = loggedUserWishes.find((wish) => wish.id === id);
-    if (targetWish) {
-      const result = {
-        ...targetWish,
-        copied: targetWish.copied + 1,
-      };
-      return this.wishesService.create(result);
+  async copyWish(@Param('id') id: string, @Req() req) {
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId) || numericId <= 0) {
+        throw new BadRequestException('Некорректный id');
     }
-  }
+
+    const targetWish = await this.wishesService.findOne(numericId);
+    await this.wishesService.update(+id, {...targetWish, copied: targetWish.copied + 1});
+    const result = {
+      name: targetWish.name,
+      link: targetWish.link,
+      image: targetWish.image,
+      price: targetWish.price,
+      description: targetWish.description
+    }
+    return await this.wishesService.create(result, req.user);
+    }
 
   @Get('top')
-  findTop(@Req() req) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.length > 0) {
+  findTop() {
       return this.wishesService.getPopularWishes();
-    }
   }
 
   @Get('last')
-  @UseGuards(JwtGuard)
   findLast(@Req() req) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.length > 0) {
       return this.wishesService.getRecentWishes();
-    }
   }
 
   @Get(':id')
@@ -67,7 +63,7 @@ export class WishesController {
     const numericId = parseInt(id, 10);
 
     if (isNaN(numericId) || numericId <= 0) {
-      throw new BadRequestException('Invalid ID format. ID must be a positive integer.');
+      throw new BadRequestException('Некорректный id');
     }
 
     return await this.wishesService.findOne(numericId);
@@ -75,24 +71,22 @@ export class WishesController {
 
   @Patch(':id')
   @UseGuards(JwtGuard)
-  update(
+  async update(
     @Req() req,
     @Param('id') id: string,
     @Body() updateWishDto: UpdateWishDto,
   ) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.find((wish) => wish.id === id)) {
-      return this.wishesService.update(+id, updateWishDto);
+    const usersWishes = await this.wishesService.findWishesByUser(req.user);
+    if (usersWishes.find((wish) => wish.id === +id)) {
+     return this.wishesService.update(+id, updateWishDto);
     }
   }
 
   @Delete(':id')
   @UseGuards(JwtGuard)
-  remove(@Req() req, @Param('id') id: string) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.find((wish) => wish.id === id)) {
+  async remove(@Req() req, @Param('id') id: string) {
+    const usersWishes = await this.wishesService.findWishesByUser(req.user);
+    if (usersWishes.find((wish) => wish.id === +id)) {
       return this.wishesService.remove(+id);
     }
   }

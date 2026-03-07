@@ -13,4 +13,6 @@ export class CreateWishDto {
   price: number;
   @IsString()
   description: string;
+
+  copied?: number;
 }

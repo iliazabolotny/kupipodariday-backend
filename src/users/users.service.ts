@@ -19,6 +19,9 @@ export class UsersService {
       const result = {
         ...createUserDto,
         password: hash,
+        wishes: [],
+        offers: [],
+        wishlists: []
       };
       const user = this.userRepository.create(result);
       return this.userRepository.save(user);

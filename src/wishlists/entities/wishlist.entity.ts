@@ -8,13 +8,13 @@ import { BaseEntity } from '../../common/entities/base.entity';
 export class Wishlist extends BaseEntity {
   @Column()
   name: string;
-  @Column()
+  @Column({ nullable: true})
   @Length(1500)
   description: string;
-  @Column()
+  @Column({ nullable: true})
   image: string;
   @ManyToOne(() => User, (user) => user.wishlists)
-  user: User;
+  owner: User;
   @OneToMany(() => Wish, (wish) => wish.wishlist, {
     cascade: true,
     onDelete: 'CASCADE',

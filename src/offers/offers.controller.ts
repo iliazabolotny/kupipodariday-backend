@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Req, BadRequestException,
+  Req, BadRequestException, NotFoundException,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -47,6 +47,10 @@ export class OffersController {
 
     if (isNaN(numericId) || numericId <= 0) {
       throw new BadRequestException('Некорректный id');
+    }
+    const offer = this.offersService.findOne(numericId);
+    if (!offer) {
+      throw new NotFoundException();
     }
     return this.offersService.findOne(numericId);
   }

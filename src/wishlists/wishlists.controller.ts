@@ -9,22 +9,29 @@ import {
   UseGuards,
   Req,
   HttpCode,
-  HttpStatus,
+  HttpStatus, BadRequestException, NotFoundException,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { JwtGuard } from '../guards/jwt.guard';
+import { WishesService } from '../wishes/wishes.service';
+import { Wish } from '../wishes/entities/wish.entity';
 
-@Controller('wishlists')
+@Controller('wishlistlists')
 @UseGuards(JwtGuard)
 export class WishlistsController {
-  constructor(private readonly wishlistsService: WishlistsService) {}
+  constructor(private wishlistsService: WishlistsService, private wishesService: WishesService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
+  async create(@Body() createWishlistDto: CreateWishlistDto, @Req()  req) {
+    const resultWishes: Wish[] = [];
+    for (let i = 0; i < createWishlistDto.itemsId.length; i++) {
+      const wish = await this.wishesService.findOne(createWishlistDto.itemsId[i]);
+      resultWishes.push(wish);
+    }
+    return this.wishlistsService.createWishlist(createWishlistDto, req.user, resultWishes);
   }
 
   @Get()
@@ -34,28 +41,43 @@ export class WishlistsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.wishlistsService.findOne(+id);
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
+    }
+    return this.wishlistsService.findOne(numericId);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Req() req,
     @Param('id') id: string,
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.find((wish) => wish.id === id)) {
-      return this.wishlistsService.update(+id, updateWishlistDto);
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
     }
+    const wishlist = await this.wishlistsService.findOne(numericId);
+    if (!wishlist) {
+      throw new NotFoundException();
+    }
+    return await this.wishlistsService.saveWishlist(wishlist, updateWishlistDto);
   }
 
   @Delete(':id')
-  remove(@Req() req, @Param('id') id: string) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    if (loggedUserWishes.find((wish) => wish.id === id)) {
-      return this.wishlistsService.remove(+id);
+  async remove(@Req() req, @Param('id') id: string) {
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
     }
+    const wishlist = await this.wishlistsService.findOne(numericId);
+    if (!wishlist) {
+      throw new NotFoundException();
+    }
+    return await this.wishlistsService.remove(+id);
   }
 }

@@ -12,7 +12,7 @@ export class Offer extends BaseEntity {
   @Column({ default: false })
   hidden: boolean;
   @ManyToOne(() => User, (user) => user.offers)
-  user: User;
+  owner: User;
   @ManyToOne(() => Wish, (wish) => wish.offers)
   item: Wish;
 }

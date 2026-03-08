@@ -14,7 +14,7 @@ export class OffersService {
   ) {}
 
   createOffer(createOfferDto: CreateOfferDto, author?: User, wish?: Wish): Promise<Offer> {
-    const offer = this.offerRepository.create({ user: author, item: wish, hidden: createOfferDto.hidden, amount: createOfferDto.amount});
+    const offer = this.offerRepository.create({ owner: author, item: wish, hidden: createOfferDto.hidden, amount: createOfferDto.amount});
     return this.offerRepository.save(offer);
   }
 

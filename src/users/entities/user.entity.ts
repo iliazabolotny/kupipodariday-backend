@@ -33,13 +33,13 @@ export class User extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   wishes: Wish[];
-  @OneToMany(() => Offer, (offer) => offer.user, {
+  @OneToMany(() => Offer, (offer) => offer.owner, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   offers: Offer[];
-  @OneToMany(() => Wishlist, (wishlist) => wishlist.user, {
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.owner, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

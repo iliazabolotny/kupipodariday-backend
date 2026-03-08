@@ -28,7 +28,7 @@ export class Wish extends BaseEntity {
   @Column({ default: 0 })
   @IsInt()
   copied: number;
-  @ManyToOne(() => User, (user) => user.wishes)
+  @ManyToOne(() => User, (owner) => owner.wishes)
   owner: User;
   @OneToMany(() => Offer, (offer) => offer.item, {
     cascade: true,

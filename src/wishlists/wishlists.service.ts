@@ -4,16 +4,34 @@ import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { User } from '../users/entities/user.entity';
+import { WishesService } from '../wishes/wishes.service';
+import { Wish } from '../wishes/entities/wish.entity';
 
 @Injectable()
 export class WishlistsService {
   constructor(
     @InjectRepository(Wishlist)
-    private readonly wishlistRepository: Repository<Wishlist>,
+    private  wishlistRepository: Repository<Wishlist>,
+    private wishesService: WishesService
   ) {}
 
-  create(createWishlistDto: CreateWishlistDto): Promise<Wishlist> {
-    return this.wishlistRepository.save(createWishlistDto);
+  createWishlist(createWishlistDto: CreateWishlistDto, user: User, resultWishes: Wish[]): Promise<Wishlist> {
+    const wishList = this.wishlistRepository.create({...createWishlistDto, owner: user, items: resultWishes});
+    return this.wishlistRepository.save(wishList);
+  }
+
+  async saveWishlist(wishlist: Wishlist, updateWishlistDto: UpdateWishlistDto) {
+    wishlist.name = updateWishlistDto.name;
+    wishlist.image = updateWishlistDto.image;
+    const resultWishes: Wish[] = [];
+    wishlist.items = [];
+    for (let i = 0; i < updateWishlistDto.itemsId.length; i++) {
+      const wish = await this.wishesService.findOne(updateWishlistDto.itemsId[i]);
+      resultWishes.push(wish);
+    }
+    wishlist.items = resultWishes;
+    return this.wishlistRepository.save(wishlist);
   }
 
   findAll() {
@@ -24,7 +42,7 @@ export class WishlistsService {
     return this.wishlistRepository.findOneBy({ id });
   }
 
-  update(id: number, updateWishlistDto: UpdateWishlistDto) {
+  update(id: number, updateWishlistDto) {
     return this.wishlistRepository.update({ id }, updateWishlistDto);
   }
 

@@ -21,7 +21,16 @@ export class UsersController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return await this.usersService.remove(+id);
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
+    }
+    const user = await this.usersService.findOne(numericId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return await this.usersService.remove(numericId);
   }
 
   @Get('me')

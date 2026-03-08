@@ -13,11 +13,11 @@ export class User extends BaseEntity {
   @Column({ default: 'https://i.pravatar.cc/300' })
   avatar: string;
 
-  @Column({ unique: true, select: false })
+  @Column({ unique: true })
   @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ unique: true })
   @Length(2, 30)
   username: string;
 

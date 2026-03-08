@@ -7,9 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from '../auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../auth/jwt.strategy';
+import { WishesModule } from '../wishes/wishes.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), PassportModule, forwardRef(() => AuthModule)],
+  imports: [TypeOrmModule.forFeature([User]), PassportModule, forwardRef(() => AuthModule), forwardRef(()=> WishesModule)],
   controllers: [UsersController],
   providers: [UsersService, JwtService, JwtStrategy],
   exports: [UsersService],

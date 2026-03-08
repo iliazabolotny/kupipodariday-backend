@@ -5,18 +5,20 @@ import {
   Body,
   Patch,
   Param,
-  Delete, UseGuards, Req, NotFoundException, HttpCode, HttpStatus,
+  Delete, UseGuards, Req, NotFoundException, HttpCode, HttpStatus, BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from '../guards/jwt.guard';
 import bcrypt from 'bcrypt';
 import { FindUserDto } from './dto/find-user.dto';
+import { WishesService } from '../wishes/wishes.service';
 
 @Controller('users')
 @UseGuards(JwtGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private usersService: UsersService, private wishesService: WishesService) {}
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.usersService.remove(+id);
@@ -24,15 +26,15 @@ export class UsersController {
 
   @Get('me')
   async getMe(@Req() req) {
-    const user = req.user;
+    const currentUser = await this.usersService.findOne(req.user.id);
     return {
-      id: user.id,
-      createdAt: user.createdAt,
-      updatedAt: user.updateAt,
-      about: user.about,
-      avatar: user.avatar,
-      email: user.email,
-      username: user.username,
+      id: currentUser.id,
+      createdAt: currentUser.createdAt,
+      updatedAt: currentUser.updateAt,
+      about: currentUser.about,
+      avatar: currentUser.avatar,
+      email: currentUser.email,
+      username: currentUser.username,
     };
   }
 
@@ -50,8 +52,7 @@ export class UsersController {
 
   @Get('me/wishes')
   async getProfileWishes(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const user = req.user;
-    return user.wishes;
+    return await this.wishesService.findWishesByUser(req.user);
   }
 
   @Get(':username')
@@ -77,23 +78,18 @@ export class UsersController {
     if (!user) {
       return NotFoundException;
     }
-    return user.wishes;
+    return await this.wishesService.findWishesByUser(user);
   }
 
   @Post('find')
   @HttpCode(HttpStatus.CREATED)
   async findUser(@Body() findUserDto: FindUserDto) {
     const searchingUser = findUserDto.query;
-    const usersByUsername = await this.usersService.searchByUsername(
-      searchingUser,
-    );
-    const usersByEmail = await this.usersService.searchByEmail(searchingUser);
-    if (usersByUsername.length > 0 && usersByEmail.length === 0) {
-      return usersByUsername;
+    if (!searchingUser) {
+      throw new BadRequestException('Необходим Query параметр');
     }
-    if (usersByEmail.length > 0 && usersByUsername.length === 0) {
-      return usersByEmail;
-    }
-    return [];
+
+    const preparedQuery = searchingUser.trim();
+    return await this.usersService.searchUser(preparedQuery)
   }
 }

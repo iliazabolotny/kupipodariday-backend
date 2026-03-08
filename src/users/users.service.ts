@@ -64,4 +64,13 @@ export class UsersService {
       where: { email: ILike(`%${email}%`) },
     });
   }
+
+  async searchUser(query: string) {
+    return await this.userRepository.find({
+      where: [
+        { username: ILike(`%${query}%`) },
+        { email: ILike(`%${query}%`) },
+      ],
+    });
+  }
 }

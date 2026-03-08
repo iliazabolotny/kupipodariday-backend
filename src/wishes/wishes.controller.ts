@@ -77,7 +77,12 @@ export class WishesController {
     @Body() updateWishDto: UpdateWishDto,
   ) {
     const usersWishes = await this.wishesService.findWishesByUser(req.user);
-    if (usersWishes.find((wish) => wish.id === +id)) {
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
+    }
+    if (usersWishes.find((wish) => wish.id === numericId)) {
      return this.wishesService.update(+id, updateWishDto);
     }
   }
@@ -86,7 +91,12 @@ export class WishesController {
   @UseGuards(JwtGuard)
   async remove(@Req() req, @Param('id') id: string) {
     const usersWishes = await this.wishesService.findWishesByUser(req.user);
-    if (usersWishes.find((wish) => wish.id === +id)) {
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
+    }
+    if (usersWishes.find((wish) => wish.id === numericId)) {
       return this.wishesService.remove(+id);
     }
   }

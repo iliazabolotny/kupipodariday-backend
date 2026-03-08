@@ -42,6 +42,10 @@ export class WishesService {
     return this.wishRepository.update({ id }, updateWishDto);
   }
 
+  updateAmount(id: number, targetAmount: {raised: number}) {
+    return this.wishRepository.update({id}, targetAmount);
+  }
+
   remove(id: number) {
     return this.wishRepository.delete({ id });
   }

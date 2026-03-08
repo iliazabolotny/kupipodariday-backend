@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Req,
+  Req, BadRequestException,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -16,20 +16,23 @@ import { WishesService } from '../wishes/wishes.service';
 @UseGuards(JwtGuard)
 export class OffersController {
   constructor(
-    private readonly offersService: OffersService,
-    private readonly wishesService: WishesService,
+    private offersService: OffersService,
+    private wishesService: WishesService,
   ) {}
 
   @Post()
   async create(@Req() req, @Body() createOfferDto: CreateOfferDto) {
-    const loggedUser = req.user;
-    const loggedUserWishes = loggedUser.wishes;
-    const targetWish = await this.wishesService.findOne(+createOfferDto.itemId);
-    if (
-      !loggedUserWishes.find((wish) => wish.id === createOfferDto.itemId) &&
-      createOfferDto.amount <= targetWish.price
-    ) {
-      return this.offersService.create(createOfferDto);
+    const usersWishes = await this.wishesService.findWishesByUser(req.user);
+    if (usersWishes.find((wish)=> wish.id === createOfferDto.itemId)) {
+      throw new BadRequestException('Нельзя вносить деньги на собственные подарки.');
+    }
+    const wish = await this.wishesService.findOne(createOfferDto.itemId);
+    const currentAmount = createOfferDto.amount + wish.raised;
+    if (wish.price > currentAmount) {
+      await this.wishesService.updateAmount(createOfferDto.itemId, {raised: currentAmount});
+      await this.offersService.createOffer(createOfferDto, req.user, wish);
+    } else {
+      throw new BadRequestException('Сумма собранных средств не может превышать стоимость подарка.');
     }
   }
 
@@ -40,6 +43,11 @@ export class OffersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.offersService.findOne(+id);
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+      throw new BadRequestException('Некорректный id');
+    }
+    return this.offersService.findOne(numericId);
   }
 }

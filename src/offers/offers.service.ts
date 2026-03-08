@@ -3,6 +3,8 @@ import { CreateOfferDto } from './dto/create-offer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Offer } from './entities/offer.entity';
+import { User } from '../users/entities/user.entity';
+import { Wish } from '../wishes/entities/wish.entity';
 
 @Injectable()
 export class OffersService {
@@ -11,8 +13,9 @@ export class OffersService {
     private readonly offerRepository: Repository<Offer>,
   ) {}
 
-  create(createOfferDto: CreateOfferDto): Promise<Offer> {
-    return this.offerRepository.save(createOfferDto);
+  createOffer(createOfferDto: CreateOfferDto, author?: User, wish?: Wish): Promise<Offer> {
+    const offer = this.offerRepository.create({ user: author, item: wish, hidden: createOfferDto.hidden, amount: createOfferDto.amount});
+    return this.offerRepository.save(offer);
   }
 
   findAll() {

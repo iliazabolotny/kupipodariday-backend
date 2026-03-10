@@ -50,13 +50,25 @@ export class UsersController {
   @Patch('me')
   async patchMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user;
-    return bcrypt.hash(updateUserDto?.password, 10).then((hash) => {
-      const result = {
+    const hash = await bcrypt.hash(updateUserDto?.password, 10)
+    const result = {
         ...updateUserDto,
         password: hash,
+    }
+    try {
+      await this.usersService.update(+user.id, result) as unknown;
+      return {
+        id: req.user.id,
+        createdAt: req.user.createdAt,
+        updatedAt: req.user.updateAt,
+        about: updateUserDto.about ?? req.user.about,
+        avatar: updateUserDto.avatar ?? req.user.avatar,
+        email: updateUserDto.email ?? req.user.email,
+        username: updateUserDto.username ?? req.user.username,
       };
-      return this.usersService.update(+user.id, result);
-    });
+    } catch (error) {
+      throw new error;
+    }
   }
 
   @Get('me/wishes')
@@ -76,7 +88,6 @@ export class UsersController {
       updatedAt: user.updateAt,
       about: user.about,
       avatar: user.avatar,
-      email: user.email,
       username: user.username,
     };
   }
@@ -99,6 +110,7 @@ export class UsersController {
     }
 
     const preparedQuery = searchingUser.trim();
-    return await this.usersService.searchUser(preparedQuery)
+    const users = await this.usersService.searchUser(preparedQuery)
+    return users.map(user => ({id: user.id, username: user.username, about: user.about, avatar: user.avatar, email: user.email, createdAt: user.createdAt, updatedAt: user.updateAt}));
   }
 }

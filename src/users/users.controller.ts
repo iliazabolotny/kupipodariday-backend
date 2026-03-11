@@ -72,8 +72,17 @@ export class UsersController {
   }
 
   @Get('me/wishes')
-  async getProfileWishes(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    return await this.wishesService.findWishesByUser(req.user);
+  async getProfileWishes(@Req() req) {
+    const wishes = await this.wishesService.findWishesByUser(req.user);
+    const resultWishes = [];
+    for (let i=0; i< wishes.length; i++) {
+      const {email, password, ...responseOwner} = wishes[i].owner;
+      resultWishes.push({
+        ...wishes[i],
+        owner: responseOwner
+      });
+    }
+    return resultWishes;
   }
 
   @Get(':username')
@@ -98,7 +107,15 @@ export class UsersController {
     if (!user) {
       return NotFoundException;
     }
-    return await this.wishesService.findWishesByUser(user);
+    const wishes = await this.wishesService.findWishesByUser(user);
+    const resultWishes = [];
+    for (let i=0; i< wishes.length; i++) {
+      const {owner, ...responseOwner} = wishes[i];
+      resultWishes.push({
+        ...responseOwner
+      });
+    }
+    return resultWishes;
   }
 
   @Post('find')

@@ -37,12 +37,21 @@ export class OffersController {
   }
 
   @Get()
-  findAll() {
-    return this.offersService.findAll();
+  async findAll() {
+    const offers = await this.offersService.findAll();
+    const resultOffers = [];
+    for (let i=0; i< offers.length; i++) {
+      const {password, ...responseOwner} = offers[i].owner;
+      resultOffers.push({
+        ...offers[i],
+        owner: responseOwner
+      });
+    }
+    return resultOffers;
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     const numericId = parseInt(id, 10);
 
     if (isNaN(numericId) || numericId <= 0) {
@@ -52,6 +61,11 @@ export class OffersController {
     if (!offer) {
       throw new NotFoundException();
     }
-    return this.offersService.findOne(numericId);
+    const foundOffer = await this.offersService.findOne(numericId);
+    const {password, ...responseOwner} = foundOffer.owner;
+    return {
+      ...foundOffer,
+      owner: responseOwner
+    }
   }
 }

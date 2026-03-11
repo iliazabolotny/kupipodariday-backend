@@ -19,11 +19,11 @@ export class OffersService {
   }
 
   findAll() {
-    return this.offerRepository.find();
+    return this.offerRepository.find({relations: ['owner', 'item'] });
   }
 
   findOne(id: number) {
-    return this.offerRepository.findOneBy({ id });
+    return this.offerRepository.findOne({ where: { id } , relations: ['owner', 'item'] });
   }
 
   remove(id: number) {

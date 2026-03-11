@@ -23,12 +23,13 @@ export class WishesService {
   }
 
   async findWishesByUser(user: User) {
-    return await this.wishRepository.find({where: { owner: user}});
+    return await this.wishRepository.find({where: { owner: { id: user.id}},  relations: ['owner', 'offers'],});
   }
 
   async findOne(id: number): Promise<Wish> {
     const wish = await this.wishRepository.findOne({
       where: { id },
+      relations: ['owner', 'offers']
     });
 
     if (!wish) {
@@ -53,6 +54,7 @@ export class WishesService {
   async getRecentWishes(): Promise<Wish[]> {
     return this.wishRepository.find({
       order: { createdAt: 'DESC' },
+      relations: ['owner', 'offers'],
       take: 40,
     });
   }
@@ -60,6 +62,7 @@ export class WishesService {
   async getPopularWishes(): Promise<Wish[]> {
     return this.wishRepository.find({
       order: { copied: 'DESC' },
+      relations: ['owner', 'offers'],
       take: 20,
     });
   }

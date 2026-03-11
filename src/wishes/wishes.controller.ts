@@ -44,17 +44,35 @@ export class WishesController {
       price: targetWish.price,
       description: targetWish.description
     }
-    return await this.wishesService.create(result, req.user);
+    await this.wishesService.create(result, req.user);
     }
 
   @Get('top')
-  findTop() {
-      return this.wishesService.getPopularWishes();
+  async findTop() {
+      const topWishes = await this.wishesService.getPopularWishes();
+      const resultWishes = [];
+      for (let i=0; i< topWishes.length; i++) {
+        const {email, password, ...responseOwner} = topWishes[i].owner;
+        resultWishes.push({
+          ...topWishes[i],
+          owner: responseOwner
+        });
+      }
+      return resultWishes;
   }
 
   @Get('last')
-  findLast(@Req() req) {
-      return this.wishesService.getRecentWishes();
+  async findLast() {
+    const lastWishes =await this.wishesService.getRecentWishes();
+    const resultWishes = [];
+    for (let i=0; i< lastWishes.length; i++) {
+      const {email, password, ...responseOwner} = lastWishes[i].owner;
+      resultWishes.push({
+        ...lastWishes[i],
+        owner: responseOwner
+      });
+    }
+    return resultWishes;
   }
 
   @Get(':id')
@@ -65,8 +83,12 @@ export class WishesController {
     if (isNaN(numericId) || numericId <= 0) {
       throw new BadRequestException('Некорректный id');
     }
-
-    return await this.wishesService.findOne(numericId);
+    const foundWish = await this.wishesService.findOne(numericId);
+    const {email, password, ...responseOwner} = foundWish.owner;
+    return {
+      ...foundWish,
+      owner: responseOwner
+    }
   }
 
   @Patch(':id')
@@ -83,7 +105,7 @@ export class WishesController {
       throw new BadRequestException('Некорректный id');
     }
     if (usersWishes.find((wish) => wish.id === numericId)) {
-     return this.wishesService.update(+id, updateWishDto);
+     await this.wishesService.update(+id, updateWishDto);
     }
   }
 
@@ -96,8 +118,14 @@ export class WishesController {
     if (isNaN(numericId) || numericId <= 0) {
       throw new BadRequestException('Некорректный id');
     }
+    const foundWish = await this.wishesService.findOne(numericId);
     if (usersWishes.find((wish) => wish.id === numericId)) {
-      return this.wishesService.remove(+id);
+      await this.wishesService.remove(+id);
+      const {email, password, ...responseOwner} = foundWish.owner;
+      return {
+        ...foundWish,
+        owner: responseOwner
+      }
     }
   }
 }

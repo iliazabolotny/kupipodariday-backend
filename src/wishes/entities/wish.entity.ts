@@ -36,6 +36,9 @@ export class Wish extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   offers: Offer[];
-  @ManyToOne(() => Wishlist, (wishlist) => wishlist.items)
+  @ManyToOne(() => Wishlist, (wishlist) => wishlist.items, {
+    onDelete: 'CASCADE', // автоматическое удаление связанных wish
+    onUpdate: 'CASCADE'
+  })
   wishlist: Wishlist;
 }

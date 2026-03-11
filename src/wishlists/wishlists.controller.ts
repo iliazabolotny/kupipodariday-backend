@@ -31,22 +31,41 @@ export class WishlistsController {
       const wish = await this.wishesService.findOne(createWishlistDto.itemsId[i]);
       resultWishes.push(wish);
     }
-    return this.wishlistsService.createWishlist(createWishlistDto, req.user, resultWishes);
+    const wishlist = await this.wishlistsService.createWishlist(createWishlistDto, req.user);
+    const {email, password, ...responseOwner} = wishlist.owner;
+    return {
+      ...wishlist,
+      owner: responseOwner
+    }
   }
 
   @Get()
-  findAll() {
-    return this.wishlistsService.findAll();
+  async findAll() {
+    const wishes = await this.wishlistsService.findAll();
+    const resultWishes = [];
+    for (let i=0; i < wishes.length; i++) {
+      const {email, password, ...responseOwner} = wishes[i].owner;
+      resultWishes.push({
+        ...wishes[i],
+        owner: responseOwner
+      });
+    }
+    return resultWishes;
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     const numericId = parseInt(id, 10);
 
     if (isNaN(numericId) || numericId <= 0) {
       throw new BadRequestException('Некорректный id');
     }
-    return this.wishlistsService.findOne(numericId);
+    const wishlist = await this.wishlistsService.findOne(numericId);
+    const {email, password, ...responseOwner} = wishlist.owner;
+    return {
+      ...wishlist,
+      owner: responseOwner
+    }
   }
 
   @Patch(':id')
@@ -64,7 +83,12 @@ export class WishlistsController {
     if (!wishlist) {
       throw new NotFoundException();
     }
-    return await this.wishlistsService.saveWishlist(wishlist, updateWishlistDto);
+    const updatedWishlist = await this.wishlistsService.saveWishlist(wishlist, updateWishlistDto);
+    const {email, password, ...responseOwner} = updatedWishlist.owner;
+    return {
+      ...updatedWishlist,
+      owner: responseOwner
+    }
   }
 
   @Delete(':id')
@@ -78,6 +102,11 @@ export class WishlistsController {
     if (!wishlist) {
       throw new NotFoundException();
     }
-    return await this.wishlistsService.remove(+id);
+    await this.wishlistsService.remove(numericId);
+    const {email, password, ...responseOwner} = wishlist.owner;
+    return {
+      ...wishlist,
+      owner: responseOwner
+    }
   }
 }

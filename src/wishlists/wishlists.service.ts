@@ -16,8 +16,8 @@ export class WishlistsService {
     private wishesService: WishesService
   ) {}
 
-  createWishlist(createWishlistDto: CreateWishlistDto, user: User, resultWishes: Wish[]): Promise<Wishlist> {
-    const wishList = this.wishlistRepository.create({...createWishlistDto, owner: user, items: resultWishes});
+  createWishlist(createWishlistDto: CreateWishlistDto, user: User): Promise<Wishlist> {
+    const wishList = this.wishlistRepository.create({...createWishlistDto, owner: user});
     return this.wishlistRepository.save(wishList);
   }
 
@@ -35,18 +35,17 @@ export class WishlistsService {
   }
 
   findAll() {
-    return this.wishlistRepository.find();
+    return this.wishlistRepository.find({relations: ['owner', 'items']});
   }
 
   findOne(id: number) {
-    return this.wishlistRepository.findOneBy({ id });
-  }
-
-  update(id: number, updateWishlistDto) {
-    return this.wishlistRepository.update({ id }, updateWishlistDto);
+    return this.wishlistRepository.findOne({
+      where: { id },
+      relations: ['owner', 'items']
+    });
   }
 
   remove(id: number) {
-    return this.wishlistRepository.delete({ id });
+    return this.wishlistRepository.delete( { id});
   }
 }

@@ -51,7 +51,7 @@ export class WishesController {
   async findTop() {
       const topWishes = await this.wishesService.getPopularWishes();
       const resultWishes = [];
-      for (let i=0; i< topWishes.length; i++) {
+      for (let i=0; i < topWishes.length; i++) {
         const {email, password, ...responseOwner} = topWishes[i].owner;
         resultWishes.push({
           ...topWishes[i],

@@ -13,6 +13,9 @@ import { JwtGuard } from '../guards/jwt.guard';
 import bcrypt from 'bcrypt';
 import { FindUserDto } from './dto/find-user.dto';
 import { WishesService } from '../wishes/wishes.service';
+import { plainToInstance } from 'class-transformer';
+import { UserProfileResponseDto } from './dto/user-profile-response.dto';
+import { UserPublicProfileResponseDto } from './dto/user-public-profile-response.dto';
 
 @Controller('users')
 @UseGuards(JwtGuard)
@@ -36,15 +39,7 @@ export class UsersController {
   @Get('me')
   async getMe(@Req() req) {
     const currentUser = await this.usersService.findOne(req.user.id);
-    return {
-      id: currentUser.id,
-      createdAt: currentUser.createdAt,
-      updatedAt: currentUser.updateAt,
-      about: currentUser.about,
-      avatar: currentUser.avatar,
-      email: currentUser.email,
-      username: currentUser.username,
-    };
+    return plainToInstance(UserProfileResponseDto, currentUser,  { excludeExtraneousValues: true });
   }
 
   @Patch('me')
@@ -57,7 +52,7 @@ export class UsersController {
     }
     try {
       await this.usersService.update(+user.id, result) as unknown;
-      return {
+      const updatedUser = {
         id: req.user.id,
         createdAt: req.user.createdAt,
         updatedAt: req.user.updateAt,
@@ -66,6 +61,7 @@ export class UsersController {
         email: updateUserDto.email ?? req.user.email,
         username: updateUserDto.username ?? req.user.username,
       };
+      return plainToInstance(UserProfileResponseDto, updatedUser, { excludeExtraneousValues: true });
     } catch (error) {
       throw new error;
     }
@@ -91,14 +87,7 @@ export class UsersController {
     if (!user) {
       return NotFoundException;
     }
-    return {
-      id: user.id,
-      createdAt: user.createdAt,
-      updatedAt: user.updateAt,
-      about: user.about,
-      avatar: user.avatar,
-      username: user.username,
-    };
+    return plainToInstance(UserPublicProfileResponseDto, user, { excludeExtraneousValues: true });
   }
 
   @Get(':username/wishes')
@@ -127,7 +116,7 @@ export class UsersController {
     }
 
     const preparedQuery = searchingUser.trim();
-    const users = await this.usersService.searchUser(preparedQuery)
-    return users.map(user => ({id: user.id, username: user.username, about: user.about, avatar: user.avatar, email: user.email, createdAt: user.createdAt, updatedAt: user.updateAt}));
+    const users = await this.usersService.searchUser(preparedQuery);
+    return plainToInstance(UserProfileResponseDto, users, { excludeExtraneousValues: true });
   }
 }
